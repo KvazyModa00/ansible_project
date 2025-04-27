@@ -1,0 +1,26 @@
+---
+    - name: Копирование докер файла постгрус
+      copy:
+        src: ../../files/Dockerfile.db
+        dest: /home/aleksey/deploy_ansible/Dockerfile.db
+
+    - name: Копирование файла переменных серды постгрес
+      template:
+        src: ../postgres/templates/postgres.env.j2
+        dest: /home/aleksey/deploy_ansible/postgres.env
+
+    - name: Копирование файла первичной инициализации
+      template:
+        src: ../postgres/templates/init.sql.j2
+        dest: /home/aleksey/deploy_ansible/init.sql
+
+    - name: Копирование docker-compose.yml
+      copy:
+        src: ../../files/docker-compose.yml
+        dest: /home/aleksey/deploy_ansible/docker-compose.yml
+
+    - name: Запуск контейнеров с помощью докер компоус
+      command: >
+        docker compose -f /home/aleksey/deploy_ansible/docker-compose.yml up -d db --build
+      args:
+        chdir: /home/aleksey/deploy_ansible

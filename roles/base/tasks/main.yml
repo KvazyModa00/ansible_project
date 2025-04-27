@@ -1,0 +1,136 @@
+---
+  - name: Проверка серверов
+    block:
+      - name: Проверка свободного места
+        ansible.builtin.command: df -h /
+        register: disk
+        failed_when: "'90%' in disk.stdout"
+    rescue:
+        - name: Очистка места
+          ansible.builtin.command: rm -rf /tmp/*
+
+  - name: Попытка установки разными пакетными менеджерами
+    block:
+      - name: Установка требуемых пакетов
+        apt:
+          name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - python3-docker
+          state: present
+          update_cache: yes
+        register: result
+        retries: 5   
+        delay: 10
+        until: result is succeeded
+        when: ansible_facts['os_family'] == "Debian"
+
+      - name: Установка требуемых пакетов
+        yum:
+          name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - python3-docker
+          state: present
+          update_cache: yes
+        register: result
+        retries: 5   
+        delay: 10
+        until: result is succeeded
+        when: ansible_facts['os_family'] == "RedHat"
+    
+    rescue:
+    - name: Уведомление о неудаче
+      debug:
+        msg: "Не удалось установить пакеты на {{ ansible_facts['os_family'] }}"
+
+  - name: Создание деплой директория
+    file:
+      path: /home/aleksey/deploy_ansible
+      state: directory
+      mode: 0755
+
+  - name: Попытка добавить репозиторий
+    block:
+      - name: Добавление GPG ключей репозитория Docker
+        apt_key:
+          url: https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg
+          state: present
+        when: ansible_facts['os_family'] == 'Debian'
+
+      - name: Добавление докер репозитория
+        apt_repository:
+          filename: docker
+          repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }} {{ ansible_facts['distribution_release'] }} stable
+          state: present
+        when: ansible_facts['os_family'] == 'Debian'
+
+      - name: Добавление Docker репозитория для RedHat
+        yum_repository:
+          name: docker-ce
+          description: Docker CE
+          baseurl: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }} {{ ansible_facts['distribution_release'] }} stable"
+          gpgcheck: yes
+          gpgkey: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg"
+          enabled: yes
+        when: ansible_facts['os_family'] == 'RedHat'
+
+    rescue:
+    - name: Уведомление о неудаче
+      debug:
+        msg: "Не удалось установить докер репозитория на {{ ansible_facts['os_family'] }}" 
+  
+  - name: Попытка установки разными пакетными менеджерами
+    block:
+      - name: Установка докер
+        apt:
+          name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+          state: present
+        register: result
+        retries: 5   
+        delay: 10
+        until: result is succeeded
+        when: ansible_facts['os_family'] == "Debian"
+      
+      - name: Установка требуемых пакетов
+        yum:
+          name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+          state: present
+          update_cache: yes
+        register: result
+        retries: 5   
+        delay: 10
+        until: result is succeeded
+        when: ansible_facts['os_family'] == "RedHat"
+
+    rescue:
+    - name: Уведомление о неудаче
+      debug:
+        msg: "Не удалось установить пакеты докер на {{ ansible_facts['os_family'] }}" 
+      
+
+  - name: Проверка доступности сервиса
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Добавления пользователя в групп докер
+    user:
+      name: aleksey
+      groups: docker
+      append: yes

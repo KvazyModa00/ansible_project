@@ -1,0 +1,24 @@
+CREATE TABLE IF NOT EXISTS "FIO" (
+    id SERIAL PRIMARY KEY,
+    myname VARCHAR(100) NOT NULL UNIQUE
+);
+
+
+INSERT INTO "FIO" (myname) 
+VALUES ('Mamakov Aleksey Vladimirovich')
+ON CONFLICT (myname) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS job (
+    id SERIAL PRIMARY KEY,
+    job VARCHAR(200) NOT NULL UNIQUE,
+    fio_id INTEGER NOT NULL,
+
+    CONSTRAINT fk_job_fio
+        FOREIGN KEY (fio_id)
+        REFERENCES "FIO"(id)
+        ON DELETE CASCADE
+);
+
+INSERT INTO job (job, fio_id) 
+VALUES ('System administrator', '1'), ('Senior Application Administrator', '1')
+ON CONFLICT (job) DO NOTHING;

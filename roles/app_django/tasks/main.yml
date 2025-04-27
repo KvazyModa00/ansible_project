@@ -1,0 +1,39 @@
+---
+    - name: Копирование директория джанго приложения
+      ansible.builtin.copy:
+        src: ../../files/web/  
+        dest: /home/aleksey/deploy_ansible/web/  
+        owner: aleksey 
+        mode: '0755'     
+        remote_src: no  
+
+    - name: Копирование докер файл приложения
+      copy:
+        src: ../../files/requirements.txt
+        dest: /home/aleksey/deploy_ansible/requirements.txt
+
+    - name: Копирование докер файл приложения
+      copy:
+        src: ../../files/Dockerfile.app
+        dest: /home/aleksey/deploy_ansible/Dockerfile.app
+
+    - name: Копирование переменных приложения
+      template:
+        src: templates/django.env.j2
+        dest: /home/aleksey/deploy_ansible/django.env
+
+    - name: Копирование docker-compose.yml
+      copy:
+        src: ../../files/docker-compose.yml
+        dest: /home/aleksey/deploy_ansible/docker-compose.yml
+
+    - name: Копирование игнорфайла
+      copy:
+        src: ../../files/.dockerignore
+        dest: /home/aleksey/deploy_ansible/.dockerignore
+
+    - name: Запуск контейнеров с помощью докер компоус
+      command: >
+        docker compose -f /home/aleksey/deploy_ansible/docker-compose.yml up -d web nginx --build
+      args:
+        chdir: /home/aleksey/deploy_ansible

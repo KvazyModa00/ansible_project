@@ -1,0 +1,10 @@
+---
+    - name: Копирование конфигурации нджинкс
+      template:
+        src: templates/nginx.conf.j2
+        dest: /home/aleksey/deploy_ansible/nginx.conf
+
+    - name: Копирование докер файла нджинкс
+      copy:
+        src: ../../files/Dockerfile.nginx
+        dest: /home/aleksey/deploy_ansible/Dockerfile.nginx

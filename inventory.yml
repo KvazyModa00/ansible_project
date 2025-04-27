@@ -1,0 +1,10 @@
+all:
+  hosts:
+    web:
+      ansible_host: 172.29.71.242
+      ansible_user: aleksey
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    db:
+      ansible_host: 172.29.71.243
+      ansible_user: aleksey
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa

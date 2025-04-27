@@ -1,0 +1,24 @@
+---
+
+- name: Настройка серверов  
+  hosts: all
+  become: yes
+  gather_facts: yes
+  roles:  
+    - base  
+
+- name: Деплой дб 
+  hosts: db
+  become: yes
+  gather_facts: no
+  roles:  
+    - postgres
+
+
+- name: Деплой веб-приложения
+  hosts: web
+  become: yes
+  gather_facts: no
+  roles:  
+    - nginx
+    - app_django     

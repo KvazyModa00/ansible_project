@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My FIO and Jobs</title>
+</head>
+<body>
+    <h1>FIO</h1>
+    <ul>
+        {% for fio in fios %}
+            <li>{{ fio.myname }}</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Jobs</h1>
+    <ul>
+        {% for job in jobs %}
+            <li>{{ job.job }} by {{ job.fio.myname }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

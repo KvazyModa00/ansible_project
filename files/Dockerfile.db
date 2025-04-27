@@ -1,0 +1,10 @@
+FROM postgres:15-alpine
+
+RUN find /usr/share/postgresql/ -name '*.md' -delete || \
+    rm -rf /var/cache/apk/* /tmp/* /usr/share/doc /usr/share/man
+
+COPY init.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432
+
+CMD ["postgres"]
